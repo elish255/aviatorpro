@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Malipo • Aviator Predictor • VPN & Connection</title>
+    <!-- Tailwind + Google Fonts + Lucide Icons + FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        /* Original red gradient background */
+        body {
+            background: linear-gradient(135deg, #ff1f2d, #ff3131);
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+        .glass-header {
+            background: rgba(30, 58, 138, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2rem 2rem 1.5rem 1.5rem;
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+        }
+        .blue-gradient {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+        }
+        .package-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.25);
+        }
+        .package-card.highlight {
+            background: linear-gradient(135deg, #fff, #fff8e7);
+            border: 2px solid #ffd700;
+        }
+        .accordion-content {
+            display: none;
+            overflow: hidden;
+        }
+        .accordion-content.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .network-btn {
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .network-btn.active {
+            border-color: #ffd700;
+            background-color: #fff9e8;
+        }
+        .copy-btn {
+            background: #eef2f8;
+            border: none;
+            padding: 0.25rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #0e3a4f;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .copy-btn:hover {
+            background: #dce5ef;
+            transform: scale(0.97);
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #1e2f3a;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1100;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+            body { padding: 1rem 0.8rem; }
+            .toast-msg { white-space: nowrap; font-size: 0.7rem; }
+        }
+        .step-value-highlight {
+            background: #fff1db;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+        .service-badge {
+            background: rgba(0,0,0,0.05);
+            border-radius: 30px;
+            padding: 2px 10px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="pb-24">
+    <div id="toastMsg" class="toast-msg">✅ Copied!</div>
+
+    <div class="max-w-md mx-auto space-y-5">
+        <!-- Header with original flair -->
+        <div class="glass-header sticky top-0 z-50 text-white px-5 py-4 flex items-center justify-between shadow-xl rounded-2xl">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='dashboard.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                </button>
+                <h1 class="font-extrabold text-lg tracking-wide uppercase">Aviator Pro • Malipo</h1>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-red-500 flex items-center justify-center shadow-[0_0_10px_rgba(255,50,50,0.6)]">
+                <i data-lucide="shield-check" class="w-4 h-4 text-white"></i>
+            </div>
+        </div>
+
+        <!-- ========== THREE PACKAGES: WEEKLY (16k) + VPN (30k) + CONNECT ACCOUNT (50k) ========== -->
+        <div class="grid gap-4">
+            <!-- 1. WEEKLY PASS - TSh 16,000 -->
+            <div class="package-card bg-white rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all" data-package="weekly" data-amount="16000" data-usd="9" data-name="Weekly Access">
+                <div class="p-4 text-center relative">
+                    <div class="inline-block px-3 py-1 bg-red-100 rounded-full text-red-700 font-black text-xs uppercase tracking-wide">🔥 POPULAR</div>
+                    <div class="package-name text-2xl font-extrabold text-red-700 mt-2">WEEKLY ACCESS</div>
+                    <div class="package-price mt-1">
+                        <div class="package-price-main text-3xl font-black text-[#1a2a6c]">TSh 16,000</div>
+                        <div class="package-price-usd bg-green-50 text-green-700 inline-block px-3 py-0.5 rounded-full text-xs font-bold mt-1">≈ $9 USD</div>
+                    </div>
+                    <div class="package-duration text-gray-500 text-xs font-medium">7 Days • Full Predictor</div>
+                    <button class="select-package-btn mt-3 w-full bg-[#1a2a6c] text-white py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b21f1f] transition" onclick="selectService(16000, 'Weekly Access', 9, 'weeklyContent')">Chagua Package</button>
+                </div>
+            </div>
+
+            <!-- 2. VPN PAYMENT - TSh 30,000 (dedicated VPN configuration) -->
+            <div class="package-card bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-yellow-400/60 transition-all" data-package="vpn" data-amount="30000" data-usd="17" data-name="VPN Setup">
+                <div class="p-4 text-center relative">
+                    <div class="absolute top-2 right-3"><span class="service-badge bg-yellow-100 text-yellow-800"><i class="fas fa-shield-alt"></i> VPN SECURE</span></div>
+                    <div class="package-name text-2xl font-extrabold text-[#1a2a6c]">🔒 VPN PACKAGE</div>
+                    <div class="package-price mt-1">
+                        <div class="package-price-main text-3xl font-black text-[#b21f1f]">TSh 30,000</div>
+                        <div class="package-price-usd bg-green-50 text-green-700 inline-block px-3 py-0.5 rounded-full text-xs font-bold mt-1">≈ $17 USD</div>
+                    </div>
+                    <div class="package-duration text-gray-500 text-xs font-medium">VPN Configuration • Unlimited Access</div>
+                    <button class="select-package-btn mt-3 w-full bg-[#1a2a6c] text-white py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b21f1f] transition" onclick="selectService(30000, 'VPN Setup (Full VPN Config)', 17, 'vpnContent')">Chagua VPN</button>
+                </div>
+            </div>
+
+            <!-- 3. CONNECTING ACCOUNT - TSh 50,000 (account linking service) -->
+            <div class="package-card highlight bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-[#ffd700] transition-all" data-package="connect" data-amount="50000" data-usd="28" data-name="Account Connection">
+                <div class="p-4 text-center relative">
+                    <div class="absolute top-2 right-3"><span class="service-badge bg-indigo-100 text-indigo-800"><i class="fas fa-link"></i> PRIORITY LINK</span></div>
+                    <div class="package-name text-2xl font-extrabold text-[#b21f1f]">🏆 CONNECT ACCOUNT</div>
+                    <div class="package-price mt-1">
+                        <div class="package-price-main text-3xl font-black text-[#1a2a6c]">TSh 50,000</div>
+                        <div class="package-price-usd bg-green-50 text-green-700 inline-block px-3 py-0.5 rounded-full text-xs font-bold mt-1">≈ $28 USD</div>
+                    </div>
+                    <div class="package-duration text-gray-500 text-xs font-medium">Full Account Linking + VIP Support</div>
+                    <button class="select-package-btn mt-3 w-full bg-[#1a2a6c] text-white py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b21f1f] transition" onclick="selectService(50000, 'Connecting Account Service', 28, 'connectContent')">Chagua Connection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DYNAMIC PAYMENT INSTRUCTIONS CARD (changes based on selection) -->
+        <div id="dynamicPaymentCard" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-red-50 rounded-bl-[100px] pointer-events-none opacity-40"></div>
+            <div class="p-5 flex items-start gap-4 border-b border-gray-100">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="credit-card" class="w-6 h-6 text-blue-700"></i>
+                </div>
+                <div>
+                    <h3 class="text-red-800 font-bold text-sm tracking-wide uppercase" id="serviceTitleDisplay">MAELEKEZO YA MALIPO</h3>
+                    <p class="text-gray-600 text-xs leading-relaxed font-medium" id="serviceDescDisplay">Bonyeza package yoyote juu kuona maelekezo kamili ya malipo.</p>
+                </div>
+            </div>
+            <!-- Amount banner dynamic -->
+            <div id="amountBanner" class="blue-gradient px-5 py-3 flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 text-[10px] font-bold uppercase tracking-wider">Kiasi Kinachohitajika</p>
+                    <p id="dynamicAmountText" class="text-white font-black text-2xl tracking-tight">TSh 0</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-5 h-5 text-white"></i>
+                </div>
+            </div>
+            <!-- PAYMENT METHODS ACCORDION (will be injected) -->
+            <div id="paymentMethodsContainer" class="p-5">
+                <div class="text-center py-8 text-gray-400 text-sm">
+                    <i class="fas fa-hand-pointer text-2xl mb-2 block"></i>
+                    Chagua package kutoka juu ili kuona njia za malipo (M-Pesa, Airtel, Tigo, HaloPesa, USDT)
+                </div>
+            </div>
+            <!-- Contact / WhatsApp footer inside card -->
+            <div class="px-5 pb-5 pt-0 text-center border-t border-gray-100 mt-2 pt-4">
+                <div class="inline-flex items-center gap-2 bg-green-50 rounded-full px-4 py-2 text-xs text-green-800">
+                    <i class="fab fa-whatsapp text-green-600"></i>
+                    <span>Baada ya malipo, wasiliana nasi kwa WhatsApp: <strong class="cursor-pointer underline" onclick="window.open('https://wa.me/255652048044', '_blank')">255652048044</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card: upload & confirmation (unified) -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative mb-8">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-bl-[100px] pointer-events-none"></div>
+            <div class="p-5 border-b border-gray-100 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center">
+                    <i data-lucide="file-check" class="w-4 h-4 text-cyan-600"></i>
+                </div>
+                <div>
+                    <h5 class="font-bold text-cyan-800 text-xs uppercase tracking-wide">THIBITISHA MALIPO YAKO</h5>
+                    <p class="text-slate-500 text-[11px] font-medium" id="formHelperText">Baada ya kulipia kiasi kinachohitajika, jaza fomu hii ili kupata huduma yako.</p>
+                </div>
+            </div>
+            <form action="" method="POST" enctype="multipart/form-data" class="p-5 space-y-4" id="paymentForm">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Jina Lako Kamili</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" name="full_name" required placeholder="Mfano: Juma Hassan"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-300 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Picha Ya Muamala (Screenshot)</label>
+                    <div class="relative">
+                        <input type="file" name="screenshot" id="screenshot" accept="image/*" required class="hidden" onchange="updateFileName(this)">
+                        <label for="screenshot" class="cursor-pointer w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl py-4 px-4 flex flex-col items-center justify-center gap-2 hover:bg-slate-100 hover:border-red-400 transition-all">
+                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                <i data-lucide="image-plus" class="w-5 h-5 text-red-500"></i>
+                            </div>
+                            <span id="file-name" class="text-xs font-semibold text-slate-500 text-center">Bonyeza kupakia picha (screenshot ya malipo)</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full blue-gradient text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-widest shadow-[0_8px_20px_rgba(178,31,31,0.4)] hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>THIBITISHA MALIPO</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="flex justify-center pb-4">
+            <button class="bg-transparent border-2 border-white text-white font-extrabold py-3 px-8 rounded-full w-full max-w-xs backdrop-blur-sm hover:bg-white hover:text-red-600 transition-all" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Processing Overlay -->
+    <div id="processingOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-white font-bold tracking-widest uppercase text-sm animate-pulse">Tunatuma Taarifa...</p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function showToast(message) {
+            const toast = document.getElementById('toastMsg');
+            toast.textContent = message || '✅ Copied!';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) scale(1)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) scale(0.9)';
+            }, 1800);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => showToast(`📋 Copied: ${text}`)).catch(() => alert("Copy manually: " + text));
+        }
+
+        function updateFileName(input) {
+            const span = document.getElementById('file-name');
+            if(input.files && input.files[0]) {
+                span.textContent = input.files[0].name;
+                span.classList.add('text-red-600', 'font-bold');
+            } else {
+                span.textContent = 'Bonyeza kupakia picha (screenshot ya malipo)';
+                span.classList.remove('text-red-600', 'font-bold');
+            }
+        }
+
+        // Generic function to display payment methods based on service and amount
+        function selectService(amount, serviceName, usdAmount, contentId) {
+            // update UI banners
+            document.getElementById('dynamicAmountText').innerHTML = `TSh ${amount.toLocaleString()}`;
+            document.getElementById('serviceTitleDisplay').innerHTML = serviceName.toUpperCase();
+            document.getElementById('serviceDescDisplay').innerHTML = `Malipo ya TSh ${amount.toLocaleString()} ($${usdAmount} USD) kwa ${serviceName}. Fuata maelekezo ya mtandao wako.`;
+            document.getElementById('formHelperText').innerHTML = `Baada ya kulipia TSh ${amount.toLocaleString()} kwa ${serviceName}, jaza fomu hii kupata huduma.`;
+
+               // Generate payment methods with correct amount and service name (VPN-specific and Account Connection)
+            const isVpn = serviceName.toLowerCase().includes('vpn');
+            const isConnect = serviceName.toLowerCase().includes('connecting') || serviceName.toLowerCase().includes('account');
+            
+            let extraNote = "";
+            if(isVpn) extraNote = "<span class='block mt-1 text-xs font-bold text-indigo-700'>🔐 Baada ya malipo utapokea faili za VPN (OpenVPN/WireGuard) na mwongozo kamili.</span>";
+            if(isConnect) extraNote = "<span class='block mt-1 text-xs font-bold text-amber-700'>🔗 Baada ya malipo, tutaunganisha akaunti yako kwa mfumo wetu na kuwezesha vipengele vyote vya Premium.</span>";
+            
+            const paymentHtml = `
+                <div class="space-y-3">
+                    <div class="bg-blue-50 p-3 rounded-xl text-xs font-medium text-blue-800 flex items-start gap-2">
+                        <i class="fas fa-info-circle mt-0.5"></i>
+                        <span>Huduma: <strong>${serviceName}</strong> • Kiasi: TSh ${amount.toLocaleString()} / $${usdAmount} USD</span>
+                        ${extraNote}
+                    </div>
+                    <!-- Vodacom M-Pesa -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('vodacom_dyn')">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[#E50000] flex items-center justify-center text-white font-black text-xs">M-P</div><span class="font-bold text-slate-800 text-sm">VODACOM (M-PESA)</span></div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                        </button>
+                        <div id="vodacom_dyn" class="accordion-content bg-white p-5 border-t border-slate-100">
+                            <ol class="space-y-2 text-xs text-slate-600 font-medium">
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">1</span> Piga <span class="font-bold">*150*00#</span></li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">2</span> Chagua 4. Lipa kwa M-Pesa → 1. Lipa kwa Simu → 8. Halopesa</li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">3</span> Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn" onclick="copyToClipboard('251109898')">Copy</button></li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">4</span> Kiasi: <strong>TSh ${amount.toLocaleString()}</strong></li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">5</span> Jina: <strong>AVIATOR PRO • ${serviceName.includes('VPN') ? 'VPN SERVICE' : (serviceName.includes('Connecting') ? 'ACCOUNT LINK' : 'WEEKLY PASS')}</strong></li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">6</span> Weka PIN kuthibitisha</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <!-- Airtel Money -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('airtel_dyn')">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[#ff0000] flex items-center justify-center text-white font-black text-xs">A-M</div><span class="font-bold text-slate-800 text-sm">Airtel Money</span></div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                        </button>
+                        <div id="airtel_dyn" class="accordion-content bg-white p-5 border-t border-slate-100">
+                            <ol class="space-y-2 text-xs">
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex justify-center items-center text-[10px] font-bold">1</span> Piga *150*60# → 5. Fanya Malipo → 1.Lipa Merchant → 1. TANQR (TIPS)</li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex justify-center items-center text-[10px] font-bold">2</span> Weka Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn" onclick="copyToClipboard('251109898')">Copy</button></li>
+                                <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex justify-center items-center text-[10px] font-bold">3</span> Kiasi: <strong>TSh ${amount.toLocaleString()}</strong> → Jina: AVIATOR PRO / ${serviceName}</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <!-- Tigo Pesa -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('tigo_dyn')">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[#0055A5] flex items-center justify-center text-white font-black text-xs">TIGO</div><span class="font-bold text-slate-800 text-sm">Tigo Pesa</span></div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                        </button>
+                        <div id="tigo_dyn" class="accordion-content bg-white p-5 border-t border-slate-100">
+                            <ol class="space-y-2 text-xs">
+                                <li class="flex gap-2">*150*01# → 5. Lipa kwa Simu → 5.Mitandao Mingine → Halopesa</li>
+                                <li class="flex gap-2">Namba: 251109898, Kiasi: TSh ${amount.toLocaleString()}, Jina: AVIATOR PRO (${serviceName})</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <!-- HaloPesa -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('halo_dyn')">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-[#FF7F00] flex items-center justify-center text-white font-black text-xs">HALO</div><span class="font-bold text-slate-800 text-sm">HaloPesa</span></div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                        </button>
+                        <div id="halo_dyn" class="accordion-content bg-white p-5 border-t border-slate-100">
+                            <p class="text-xs">*150*88# → 5. Lipia Bidhaa → 3. M-PESA → Namba: 251109898 → Kiasi: ${amount.toLocaleString()} TSh → Jina: AVIATOR PRO</p>
+                        </div>
+                    </div>
+                    <!-- USDT Crypto (always same address) -->
+                    <div class="border border-slate-200 rounded-xl overflow-hidden">
+                        <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('usdt_dyn')">
+                            <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-black text-indigo-700">₿</div><span class="font-bold text-slate-800 text-sm">USDT (TRC20/BEP20)</span></div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                        </button>
+                        <div id="usdt_dyn" class="accordion-content bg-white p-5 border-t border-slate-100">
+                            <ul class="space-y-2 text-xs">
+                                <li>Tuma <strong>$${usdAmount} USDT</strong> kwa address: <span class="step-value-highlight break-all">TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj</span> <button class="copy-btn" onclick="copyToClipboard('TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj')">Copy</button></li>
+                                <li>Network: TRC20 au BEP20. Baada ya kutuma, wasiliana nasi kwa WhatsApp na TxID.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('paymentMethodsContainer').innerHTML = paymentHtml;
+            // Reinitialize lucide icons for newly added dynamic content
+            lucide.createIcons();
+            // Scroll to payment card smoothly
+            document.getElementById('dynamicPaymentCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Accordion toggle for dynamic generated content (global)
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if(!el) return;
+            const btn = el.previousElementSibling;
+            const isActive = el.classList.contains('active');
+            // Close all other accordions inside the container
+            document.querySelectorAll('.accordion-content').forEach(content => {
+                if(content.id !== id) {
+                    content.classList.remove('active');
+                    if(content.previousElementSibling) content.previousElementSibling.classList.remove('active');
+                }
+            });
+            if(!isActive) {
+                el.classList.add('active');
+                if(btn) btn.classList.add('active');
+            } else {
+                el.classList.remove('active');
+                if(btn) btn.classList.remove('active');
+            }
+        }
+
+        // Form submission overlay
+        const form = document.getElementById('paymentForm');
+        if(form) {
+            form.addEventListener('submit', function(e) {
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                document.getElementById('processingOverlay').classList.remove('hidden');
+                document.getElementById('processingOverlay').classList.add('flex');
+                setTimeout(() => {}, 50);
+            });
+        }
+
+        // Initialize default (optional: show weekly content as default)
+        window.addEventListener('DOMContentLoaded', () => {
+            selectService(16000, 'Weekly Access', 9, 'weeklyContent');
+        });
+    </script>
+</body>
+</html>

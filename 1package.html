@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Malipo • Aviator Predictor</title>
+    <!-- Tailwind + Google Fonts + Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font Awesome for backward compatibility (optional icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* preserve original color gradients, background, and premium touches */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* original background gradient from packages.html (red/crimson) */
+        body {
+            background: linear-gradient(135deg, #ff1f2d, #ff3131);
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        /* override tailwind default background to let original gradient shine */
+        .bg-custom-original {
+            background: transparent;
+        }
+
+        /* custom glass & card styles to match original vibrant feel */
+        .glass-header {
+            background: rgba(30, 58, 138, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2rem 2rem 1.5rem 1.5rem;
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .blue-gradient {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+        }
+        
+        /* accordion animation (smooth) */
+        .accordion-content {
+            display: none;
+            overflow: hidden;
+        }
+        .accordion-content.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .network-btn {
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .network-btn.active {
+            border-color: #ffd700;
+            background-color: #fff9e8;
+        }
+        /* original card hover and shadow */
+        .package-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.25);
+        }
+        .copy-btn {
+            background: #eef2f8;
+            border: none;
+            padding: 0.25rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #0e3a4f;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .copy-btn:hover {
+            background: #dce5ef;
+            transform: scale(0.97);
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #1e2f3a;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1100;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.8rem;
+            }
+            .toast-msg {
+                white-space: nowrap;
+                font-size: 0.7rem;
+            }
+        }
+        /* override lucide icon default sizing */
+        i[data-lucide] {
+            display: inline-block;
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        .step-value-highlight {
+            background: #fff1db;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="pb-24">
+    <!-- Toast Message (copied) -->
+    <div id="toastMsg" class="toast-msg">✅ Copied!</div>
+
+    <div class="max-w-md mx-auto space-y-5">
+        <!-- Header with original flair -->
+        <div class="glass-header sticky top-0 z-50 text-white px-5 py-4 flex items-center justify-between shadow-xl rounded-2xl">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='dashboard.html'" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
+                </button>
+                <h1 class="font-extrabold text-lg tracking-wide uppercase">MWONGOZO WA MALIPO</h1>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-red-500 flex items-center justify-center shadow-[0_0_10px_rgba(255,50,50,0.6)]">
+                <i data-lucide="shield-check" class="w-4 h-4 text-white"></i>
+            </div>
+        </div>
+
+        <!-- PACKAGE CARD - only TSh 16,000 as requested, but keep original style -->
+        <div class="package-card bg-white rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all">
+            <div class="relative">
+                <div class="absolute top-0 right-0 w-28 h-28 bg-red-100/30 rounded-bl-[80px] pointer-events-none"></div>
+                <div class="p-5 text-center">
+                    <div class="inline-block px-4 py-1 bg-red-100 rounded-full text-red-700 font-black text-xs uppercase tracking-wide mb-2">🔥 OFFICIAL PASS</div>
+                    <div class="package-name text-3xl font-extrabold text-red-700">WEEKLY ACCESS</div>
+                    <div class="package-price mt-2">
+                        <div class="package-price-main text-4xl font-black text-[#1a2a6c]">TSh 16,000</div>
+                        <div class="package-price-usd bg-green-50 text-green-700 inline-block px-4 py-1 rounded-full text-sm font-bold mt-2">≈ $9 USD</div>
+                    </div>
+                    <div class="package-duration text-gray-500 text-sm font-medium mt-1">7 Days Full Access</div>
+                    <ul class="package-features flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+                        <li class="text-sm flex items-center gap-1"><i class="fas fa-check-circle text-green-500"></i> Full Predictor</li>
+                        <li class="text-sm flex items-center gap-1"><i class="fas fa-check-circle text-green-500"></i> Live Odds</li>
+                        <li class="text-sm flex items-center gap-1"><i class="fas fa-check-circle text-green-500"></i> 24/7 Support</li>
+                    </ul>
+                    <div class="mt-4 text-[11px] text-gray-400 bg-gray-50 rounded-full py-1 px-3 inline-block">★ Most popular package</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Instructions Card (unified, inspired by original but cleaner) -->
+        <div class="bg-white rounded-2xl shadow-xl border border-white/30 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-red-50 rounded-bl-[100px] pointer-events-none opacity-50"></div>
+            <div class="p-5 flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 relative z-10">
+                    <i data-lucide="book-open" class="w-6 h-6 text-blue-700"></i>
+                </div>
+                <div class="relative z-10">
+                    <h3 class="text-red-800 font-bold text-sm tracking-wide mb-1 uppercase">NUNUA MSIMBO WA KUFUNGUA APP</h3>
+                    <p class="text-gray-600 text-xs leading-relaxed font-medium">Fuata maelekezo ya mtandao wako na malipo yatakapothibitishwa utapata code yako.</p>
+                </div>
+            </div>
+
+            <!-- Amount Banner with dynamic TSh 16,000 -->
+            <div class="blue-gradient px-5 py-4 flex items-center justify-between">
+                <div>
+                    <p class="text-red-100 text-[10px] font-bold uppercase tracking-wider mb-1">Kiasi Kinachohitajika</p>
+                    <p class="text-white font-black text-2xl tracking-tight">TSh 16,000</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <i data-lucide="wallet" class="w-5 h-5 text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods Accordion (all operators + USDT) keep original style but enhanced -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-5">
+            <h4 class="font-extrabold text-slate-800 text-sm mb-4 uppercase tracking-wide flex items-center gap-2">
+                <i data-lucide="smartphone" class="w-4 h-4 text-red-500"></i>
+                JINSI YA KULIPIA (TSh 16,000)
+            </h4>
+            
+            <div class="space-y-3">
+                <!-- Vodacom M-Pesa -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('vodacom')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#E50000] flex items-center justify-center text-white font-black text-xs">M-P</div>
+                            <span class="font-bold text-slate-800 text-sm">VODACOM (M-PESA)</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                    </button>
+                    <div id="vodacom" class="accordion-content bg-white p-5 border-t border-slate-100">
+                        <p class="text-xs text-slate-500 font-bold mb-3 uppercase">Fuata hatua hizi kwa usahihi:</p>
+                        <ol class="space-y-3 text-xs text-slate-600 font-medium">
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Piga <span class="font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">*150*00#</span></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> Chagua <strong>4. Lipa kwa M-Pesa</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Chagua <strong>1. Lipa kwa Simu</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Chagua <strong>8. Halopesa</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">5</span> Weka Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn ml-1" onclick="copyToClipboard('251109898')">Copy</button></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">6</span> Kiasi: <strong class="text-slate-800">TSh 16,000</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">7</span> Jina: <strong>AVIATOR PRO</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">8</span> Weka PIN yako na thibitisha muamala</li>
+                            <li class="mt-1 pt-1 text-[11px] text-blue-700 font-semibold">✅ Hakikisha jina linaonekana: AVIATOR PRO</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Airtel Money -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('airtel')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#ff0000] flex items-center justify-center text-white font-black text-xs">A-M</div>
+                            <span class="font-bold text-slate-800 text-sm">Airtel Money</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                    </button>
+                    <div id="airtel" class="accordion-content bg-white p-5 border-t border-slate-100">
+                        <p class="text-xs text-slate-500 font-bold mb-3 uppercase">Jinsi ya Kulipa (Airtel)</p>
+                        <ol class="space-y-3 text-xs text-slate-600 font-medium">
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Piga <span class="font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">*150*60#</span></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> Chagua <strong>5. Fanya Malipo</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Chagua <strong>1.Lipa Merchant (Mitandao Yote)</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Chagua <strong>1. TANQR (TIPS)</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">5</span> Weka Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn ml-1" onclick="copyToClipboard('251109898')">Copy</button></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">6</span> Kiasi: <strong>TSh 16,000</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">7</span> Jina: <strong>AVIATOR PRO</strong> → Thibitisha</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Tigo Pesa (Mixx by yas) -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('tigo')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#0055A5] flex items-center justify-center text-white font-black text-xs">TIGO</div>
+                            <span class="font-bold text-slate-800 text-sm">Tigo Pesa (Mixx by Yas)</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                    </button>
+                    <div id="tigo" class="accordion-content bg-white p-5 border-t border-slate-100">
+                        <p class="text-xs text-slate-500 font-bold mb-3 uppercase">Fuata hatua kwa Tigo Pesa</p>
+                        <ol class="space-y-3 text-xs text-slate-600 font-medium">
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Piga <span class="font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">*150*01#</span></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> Chagua <strong>5. Lipa kwa Simu</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Chagua <strong>5.Mitandao Mingine</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Chagua <strong>Halopesa</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">5</span> Weka Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn ml-1" onclick="copyToClipboard('251109898')">Copy</button></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">6</span> Kiasi: <strong>TSh 16,000</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">7</span> Hakikisha jina <strong>AVIATOR PRO</strong> kabla ya kuthibitisha</li>
+                        </ol>
+                    </div>
+                </div>
+
+               <!-- HaloPesa -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('halopesa')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#FF7F00] flex items-center justify-center text-white font-black text-xs">HALO</div>
+                            <span class="font-bold text-slate-800 text-sm">HaloPesa</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                    </button>
+                    <div id="halopesa" class="accordion-content bg-white p-5 border-t border-slate-100">
+                        <p class="text-xs text-slate-500 font-bold mb-3 uppercase">Kupitia HaloPesa (Halotel)</p>
+                        <ol class="space-y-3 text-xs text-slate-600 font-medium">
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Bonyeza <span class="font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">*150*88#</span></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> Chagua <strong>5. Lipia Bidhaa</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Chagua <strong>3. M-PESA</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Weka Namba: <span class="step-value-highlight">251109898</span> <button class="copy-btn ml-1" onclick="copyToClipboard('251109898')">Copy</button></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">5</span> Kiasi: <strong>TSh 16,000</strong></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">6</span> Weka Namba ya Siri (PIN) kuthibitisha</li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">7</span> Jina la Biashara: <strong>AVIATOR PRO</strong></li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- USDT Payment (Crypto) keeping original style -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="network-btn w-full p-4 flex items-center justify-between bg-slate-50 hover:bg-slate-100" onclick="toggleAccordion('usdt')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-black text-xs">₿</div>
+                            <span class="font-bold text-slate-800 text-sm">USDT (TRC20 / BEP20)</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400"></i>
+                    </button>
+                    <div id="usdt" class="accordion-content bg-white p-5 border-t border-slate-100">
+                        <ul class="space-y-3 text-xs text-slate-700">
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Tuma <strong>$9 USD</strong> (USDT) kwa address ifuatayo:</li>
+                            <li class="flex items-start gap-2 flex-wrap"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> <span class="font-mono bg-gray-100 p-1 rounded text-xs break-all">TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj</span> <button class="copy-btn" onclick="copyToClipboard('TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj')">Copy</button></li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Network: TRC20 au BEP20 (safely send)</li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Baada ya malipo tuma TxID kupitia WhatsApp</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card: Upload Screenshot + Full name (exactly as original but adjusted with TSh 16k style) -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative mb-10">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-bl-[100px] pointer-events-none"></div>
+            
+            <div class="p-5 border-b border-gray-100 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="file-check" class="w-4 h-4 text-cyan-600"></i>
+                </div>
+                <div>
+                    <h5 class="font-bold text-cyan-800 text-xs mb-1 uppercase tracking-wide">THIBITISHA MALIPO YAKO</h5>
+                    <p class="text-slate-500 text-[11px] leading-relaxed font-medium">Baada ya kulipia TSh 16,000, jaza fomu hii kwa usahihi ili kupokea msimbo wa kufungua app.</p>
+                </div>
+            </div>
+
+            <form action="" method="POST" enctype="multipart/form-data" class="p-5 space-y-4 relative z-10" id="paymentForm">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Jina Lako Kamili</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" name="full_name" required placeholder="Mfano: Juma Hassan"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-300 transition-all font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 ml-1">Weka Picha Ya Muamala (Screenshot)</label>
+                    <div class="relative">
+                        <input type="file" name="screenshot" id="screenshot" accept="image/*" required class="hidden" onchange="updateFileName(this)">
+                        <label for="screenshot" class="cursor-pointer w-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl py-4 px-4 flex flex-col items-center justify-center gap-2 hover:bg-slate-100 hover:border-red-400 transition-all group">
+                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                <i data-lucide="image-plus" class="w-5 h-5 text-red-500"></i>
+                            </div>
+                            <span id="file-name" class="text-xs font-semibold text-slate-500 text-center">Bonyeza kupakia picha (screenshot ya malipo)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full blue-gradient text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-widest shadow-[0_8px_20px_rgba(178,31,31,0.4)] hover:shadow-[0_10px_25px_rgba(178,31,31,0.5)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2">
+                    <span>THIBITISHA MALIPO</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <!-- WhatsApp contact hint (extra inline with original style) -->
+            <div class="px-5 pb-5 pt-0 text-center">
+                <div class="inline-flex items-center gap-2 bg-green-50 rounded-full px-4 py-2 text-xs text-green-800">
+                    <i class="fab fa-whatsapp text-green-600"></i>
+                    <span>Baada ya kuthibitisha, wasiliana nasi kwa WhatsApp: <strong class="cursor-pointer underline" onclick="window.open('https://wa.me/255652048044', '_blank')">255652048044</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- back to dashboard (original style button) -->
+        <div class="flex justify-center pb-4">
+            <button class="back-btn bg-transparent border-2 border-white text-white font-extrabold py-3 px-8 rounded-full w-full max-w-xs backdrop-blur-sm hover:bg-white hover:text-red-600 transition-all" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Processing Overlay -->
+    <div id="processingOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-white font-bold tracking-widest uppercase text-sm animate-pulse">Tunatuma Taarifa...</p>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Accordion toggle function (preserves only one open)
+        function toggleAccordion(id) {
+            document.querySelectorAll('.accordion-content').forEach(el => {
+                if (el.id !== id) {
+                    el.classList.remove('active');
+                    if(el.previousElementSibling) el.previousElementSibling.classList.remove('active');
+                }
+            });
+            const content = document.getElementById(id);
+            const btn = content.previousElementSibling;
+            content.classList.toggle('active');
+            if(btn) btn.classList.toggle('active');
+        }
+
+        // Copy to clipboard with toast (original style)
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toastMsg');
+                toast.textContent = `✅ Copied: ${text}`;
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) scale(1)';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) scale(0.9)';
+                }, 1800);
+            }).catch(() => alert("Copy manually: " + text));
+        }
+
+        function updateFileName(input) {
+            const labelSpan = document.getElementById('file-name');
+            if(input.files && input.files[0]) {
+                labelSpan.textContent = input.files[0].name;
+                labelSpan.classList.add('text-red-600', 'font-bold');
+            } else {
+                labelSpan.textContent = 'Bonyeza kupakia picha (screenshot ya malipo)';
+                labelSpan.classList.remove('text-red-600', 'font-bold');
+            }
+        }
+
+        // Form submit handling + processing overlay
+        const form = document.getElementById('paymentForm');
+        if(form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                document.getElementById('processingOverlay').classList.remove('hidden');
+                document.getElementById('processingOverlay').classList.add('flex');
+                // Allow actual submission; you can keep or replace action
+                setTimeout(() => {
+                    // if you want to keep the default behavior, do nothing extra
+                }, 50);
+            });
+        }
+
+        // ensure USDT section is not forced open by default — but keep all collapsed
+        // Also make sure all accordion sections initially closed
+        document.querySelectorAll('.accordion-content').forEach(el => el.classList.remove('active'));
+    </script>
+</body>
+</html>

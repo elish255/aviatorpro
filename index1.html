@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+     
+  <!-- ========== SOCIAL MEDIA PREVIEW / OPEN GRAPH META TAGS ========== -->
+  <!-- These tags control how your page looks when shared on Facebook, WhatsApp, LinkedIn, Telegram, etc. -->
+  <meta property="og:title" content="Aviator Predictor | Live Odds & Real-time Predictions" />
+  <meta property="og:description" content="Next-gen Aviator predictor with dynamic coefficient generator, rotating sprinkler, and connected timer. Upgrade your game with smart predictions." />
+  <meta property="og:image" content="https://www.image2url.com/r2/default/images/1779512682286-4a2a9b4e-ca9b-4396-a4e9-98b0c045a615.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://aviator-predictor-flax.vercel.app/"/>
+  <!-- Twitter Card (for better preview on X/Twitter) -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Aviator Predictor — Smart Odds Generator" />
+  <meta name="twitter:description" content="Real-time coefficient predictions, auto-update odds, and connection timer. Experience the next level predictor." />
+  <meta name="twitter:image" content="https://www.image2url.com/r2/default/images/1779512682286-4a2a9b4e-ca9b-4396-a4e9-98b0c045a615.png" />
+    <title>Choose Your Betting Site</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+         background:linear-gradient(135deg,#ff1f2d,#ff3131);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin: 20px 0 40px;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .site-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        
+        .site-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .image-container {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 15px;
+            transition: transform 0.5s ease;
+        }
+        
+        .site-card:hover .image-container img {
+            transform: scale(1.1);
+        }
+        
+        .site-name {
+            padding: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        
+        .site-name i {
+            color: #6a11cb;
+        }
+        
+        footer {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .image-container {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CHOOSE YOUR BETTING SITE</h1>
+            <p class="subtitle">Select from our trusted partners for the best betting experience</p>
+        </header>
+        
+        <div class="grid" id="sitesGrid">
+            <div class="site-card" data-site-name="1WINBET" data-site-img="images/1win.png" data-site-icon="fa-dice">
+                <div class="image-container">
+                    <img src="images/1win.png" alt="1winBet" onerror="this.src='https://placehold.co/200x120/ff4444/white?text=1WIN'">
+                </div>
+                <div class="site-name"><i class="fas fa-dice"></i> 1WINBET</div>
+            </div>
+            
+            <div class="site-card" data-site-name="SportyBet" data-site-img="images/sportybet.png" data-site-icon="fa-running">
+                <div class="image-container">
+                    <img src="images/sportybet.png" alt="SportyBet" onerror="this.src='https://placehold.co/200x120/00a859/white?text=SportyBet'">
+                </div>
+                <div class="site-name"><i class="fas fa-running"></i> SportyBet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="BETWINNER" data-site-img="images/betwinner.png" data-site-icon="fa-trophy">
+                <div class="image-container">
+                    <img src="images/betwinner.png" alt="BETWINNER" onerror="this.src='https://placehold.co/200x120/ff6600/white?text=BETWINNER'">
+                </div>
+                <div class="site-name"><i class="fas fa-trophy"></i> BETWINNER</div>
+            </div>
+            
+            <div class="site-card" data-site-name="PREMIER Bet" data-site-img="images/premierbet.png" data-site-icon="fa-crown">
+                <div class="image-container">
+                    <img src="images/premierbet.png" alt="PREMIER Bet" onerror="this.src='https://placehold.co/200x120/1a5d8f/white?text=PREMIER'">
+                </div>
+                <div class="site-name"><i class="fas fa-crown"></i> PREMIER Bet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="Betpawa" data-site-img="images/betpawa.png" data-site-icon="fa-chess-queen">
+                <div class="image-container">
+                    <img src="images/betpawa.png" alt="Betpawa" onerror="this.src='https://placehold.co/200x120/8B5CF6/white?text=Betpawa'">
+                </div>
+                <div class="site-name"><i class="fas fa-chess-queen"></i> Betpawa</div>
+            </div>
+            
+            <div class="site-card" data-site-name="WasafiBet" data-site-img="images/wasafibet.png" data-site-icon="fa-coins">
+                <div class="image-container">
+                    <img src="images/wasafibet.png" alt="Wasafibet" onerror="this.src='https://placehold.co/200x120/FFD700/black?text=WasafiBet'">
+                </div>
+                <div class="site-name"><i class="fas fa-coins"></i> WasafiBet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="BetKing" data-site-img="images/betking.png" data-site-icon="fa-crown">
+                <div class="image-container">
+                    <img src="images/betking.png" alt="BetKing" onerror="this.src='https://placehold.co/200x120/FF5722/white?text=BetKing'">
+                </div>
+                <div class="site-name"><i class="fas fa-crown"></i> BetKing</div>
+            </div>
+            
+            <div class="site-card" data-site-name="1XBet" data-site-img="images/1xbet.png" data-site-icon="fa-dice-d20">
+                <div class="image-container">
+                    <img src="images/1xbet.png" alt="1XBET" onerror="this.src='https://placehold.co/200x120/0A5C36/white?text=1XBET'">
+                </div>
+                <div class="site-name"><i class="fas fa-dice-d20"></i> 1XBet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="Gwalabet" data-site-img="images/gwalabet.png" data-site-icon="fa-star">
+                <div class="image-container">
+                    <img src="images/gwalabet.png" alt="Gwalabet" onerror="this.src='https://placehold.co/200x120/9C27B0/white?text=Gwalabet'">
+                </div>
+                <div class="site-name"><i class="fas fa-star"></i> Gwalabet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="Sportsbet" data-site-img="images/sportsbet.png" data-site-icon="fa-basketball-ball">
+                <div class="image-container">
+                    <img src="images/sportsbet.png" alt="SPORTSBET" onerror="this.src='https://placehold.co/200x120/E91E63/white?text=Sportsbet'">
+                </div>
+                <div class="site-name"><i class="fas fa-basketball-ball"></i> Sportsbet</div>
+            </div>
+            
+            <div class="site-card" data-site-name="Bet365" data-site-img="images/bet365.png" data-site-icon="fa-dice">
+                <div class="image-container">
+                    <img src="images/bet365.png" alt="Bet365" onerror="this.src='https://placehold.co/200x120/00AA55/white?text=Bet365'">
+                </div>
+                <div class="site-name"><i class="fas fa-dice"></i> Bet365</div>
+            </div>
+            
+            <div class="site-card" data-site-name="sportpesa" data-site-img="images/sportpesa.png" data-site-icon="fa-medal">
+                <div class="image-container">
+                    <img src="images/sportpesa.png" alt="sportpesa" onerror="this.src='https://placehold.co/200x120/FF4500/white?text=sportpesa'">
+                </div>
+                <div class="site-name"><i class="fas fa-medal"></i> sportpesa</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Please gamble responsibly | Must be 18+ to participate</p>
+        </footer>
+    </div>
+
+    <script>
+        const siteCards = document.querySelectorAll('.site-card');
+        
+        siteCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const siteName = this.getAttribute('data-site-name');
+                const siteImg = this.getAttribute('data-site-img');
+                
+                const selectedSite = {
+                    name: siteName,
+                    imgSrc: siteImg
+                };
+                sessionStorage.setItem('selectedBettingSite', JSON.stringify(selectedSite));
+                
+                window.location.href = 'loading.html';
+            });
+        });
+        
+        function handleImageError(img) {
+            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYWFhIj5JTUfFjTwvdGV4dD48L3N2Zz4=';
+        }
+        
+        document.querySelectorAll('.image-container img').forEach(img => {
+            img.onerror = () => handleImageError(img);
+        });
+    </script>
+</body>
+</html>
