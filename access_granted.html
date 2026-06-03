@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -21,7 +20,7 @@
         <h2 class="text-2xl font-black text-green-700">Malipo Yamekubaliwa!</h2>
         <p class="text-gray-600 mt-2">Hongera! Malipo yako yamethibitishwa.</p>
         <div id="dynamicMessage" class="mt-4 p-3 bg-blue-50 rounded-xl text-sm">
-            Inapakua taarifa...
+            Inapakua...
         </div>
         <div class="mt-6 flex gap-3 justify-center">
             <button id="dashboardBtn" class="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold">← Dashboard</button>
@@ -47,13 +46,13 @@
         const requestId = urlParams.get('requestId');
         const msgDiv = document.getElementById('dynamicMessage');
 
-        let redirectUrl = 'dashboard.html'; // default
+        let redirectUrl = 'dashboard.html';
         let successText = '';
 
-        // Determine redirect based on type
+        // CORRECT REDIRECTS BASED ON PACKAGE TYPE
         if (type === 'app_id') {
             redirectUrl = 'package2.html';
-            successText = 'Msimbo wako wa App ID utaonekana hapa chini. Unaelekezwa kwenye ukurasa wa VPN...';
+            successText = 'Msimbo wako wa App ID umetolewa. Unaelekezwa kwenye ukurasa wa VPN...';
         } else if (type === 'vpn') {
             redirectUrl = 'package3.html';
             successText = 'VPN yako imeamilishwa. Unaelekezwa kwenye kuunganisha akaunti...';
@@ -65,7 +64,6 @@
             successText = 'Malipo yamethibitishwa. Unaelekezwa kwenye dashibodi...';
         }
 
-        // Fetch the actual App ID from Firestore if needed
         async function fetchAppId() {
             if (type === 'app_id' && requestId) {
                 try {
@@ -73,27 +71,24 @@
                     if (doc.exists && doc.data().appIdGenerated) {
                         return doc.data().appIdGenerated;
                     }
-                } catch (err) {
-                    console.error("Error fetching App ID:", err);
-                }
+                } catch (err) { console.error(err); }
             }
             return null;
         }
 
-        // Display message and redirect after 5 seconds
         async function init() {
             let displayMsg = successText;
             if (type === 'app_id') {
                 const appId = await fetchAppId();
                 if (appId) {
-                    displayMsg = `<strong>Msimbo wako wa App ID:</strong> <span class="font-mono bg-white px-2 py-1 rounded border">${appId}</span><br>Unaweza kuingia app na kutumia huduma. Unaelekezwa kwenye ukurasa wa VPN...`;
+                    displayMsg = `<strong>Msimbo wako wa App ID:</strong> <span class="font-mono bg-white px-2 py-1 rounded border">${appId}</span><br>Unaelekezwa kwenye ukurasa wa VPN...`;
                 } else {
-                    displayMsg = `<strong>Msimbo wako wa App ID umetumwa kwa WhatsApp yako.</strong><br>Unaelekezwa kwenye ukurasa wa VPN...`;
+                    displayMsg = `<strong>Msimbo wako wa App ID umetumwa kwa WhatsApp.</strong><br>Unaelekezwa kwenye ukurasa wa VPN...`;
                 }
             } else if (type === 'vpn') {
-                displayMsg = `<strong>Config ya VPN imetumwa kwa WhatsApp yako.</strong><br>Tafadhali angalia ujumbe. Unaelekezwa kwenye kuunganisha akaunti...`;
+                displayMsg = `<strong>Config ya VPN imetumwa kwa WhatsApp yako.</strong><br>Unaelekezwa kwenye kuunganisha akaunti...`;
             } else if (type === 'connect') {
-                displayMsg = `<strong>Akaunti yako imeunganishwa kikamilifu!</strong><br>Sasa una access ya VIP. Unaelekezwa kwenye dashibodi...`;
+                displayMsg = `<strong>Akaunti yako imeunganishwa kikamilifu!</strong><br>Unaelekezwa kwenye dashibodi...`;
             }
             msgDiv.innerHTML = displayMsg;
 
@@ -103,7 +98,6 @@
             }, 5000);
         }
 
-        // Manual dashboard button override
         document.getElementById('dashboardBtn').onclick = () => {
             window.location.href = 'dashboard.html';
         };
