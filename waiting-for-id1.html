@@ -10,6 +10,8 @@
         body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #ff1f2d, #ff3131); }
         .spinner { border: 4px solid rgba(0,0,0,0.1); border-radius: 50%; border-top: 4px solid #f59e0b; width: 48px; height: 48px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-message { font-size: 0.8rem; margin-top: 1rem; color: #666; }
+        .manual-refresh { display: inline-block; margin-top: 1rem; background: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-5">
@@ -20,17 +22,20 @@
         <p class="text-xs text-gray-400 mt-4">Ukisubiri kwa muda mrefu, wasiliana nasi kupitia WhatsApp.</p>
         <div class="mt-6 flex gap-3 justify-center">
             <button onclick="window.location.href='dashboard.html'" class="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold">← Dashboard</button>
-            <button onclick="window.open('https://wa.me/255652048044','_blank')" class="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold"><i class="fab fa-whatsapp mr-1"></i> Wasiliana</button>
+            <button onclick="window.open('https://wa.me/255652048044','_blank')" class="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold"><i class="fab fa-whatsapp mr-1"></i> Contact Us</button>
         </div>
+        <div class="status-message" id="statusMsg">Usitoke kwenye Ukurasa huu..</div>
+        <div class="manual-refresh" id="manualRefreshBtn" onclick="checkStatusManually()">⟳ Refresh Page</div>
     </div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     
     <script>
-        // Firebase configuration – same as your existing project
+        // Firebase configuration (same as your project)
         const firebaseConfig = {
             apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
             authDomain: "aviator-predictor-49e48.firebaseapp.com",
@@ -40,37 +45,97 @@
             appId: "1:369153377284:web:87e48bbff408118a1ae151"
         };
         
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Get request ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const requestId = urlParams.get('id');
         
         if (!requestId) {
-            // No ID – go back to package page
             window.location.href = 'package1.html';
         }
 
-        // Real-time listener for this submission
-        const unsubscribe = db.collection('submissions').doc(requestId).onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.status === 'approved') {
-                    unsubscribe();
-                    // Redirect to success page with details
-                    window.location.href = `access_granted.html?type=app_id&amount=16000&requestId=${requestId}`;
-                } else if (data.status === 'rejected') {
-                    unsubscribe();
-                    alert("Malipo yako yamekataliwa. Tafadhali fanya Malipo.");
-                    window.location.href = 'package1.html';
+        let unsubscribe = null;
+        let checkInterval = null;
+
+        // Function to check status (used both for real-time and manual)
+        async function checkStatus() {
+            try {
+                const doc = await db.collection('submissions').doc(requestId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.status === 'approved') {
+                        if (unsubscribe) unsubscribe();
+                        if (checkInterval) clearInterval(checkInterval);
+                        window.location.href = `access_granted.html?type=app_id&amount=16000&requestId=${requestId}`;
+                    } else if (data.status === 'rejected') {
+                        if (unsubscribe) unsubscribe();
+                        if (checkInterval) clearInterval(checkInterval);
+                        alert("Malipo yako yamekataliwa. Tafadhali fanya malipo tena.");
+                        window.location.href = 'package1.html';
+                    }
                 }
+            } catch (err) {
+                console.error("Check status error:", err);
+                document.getElementById('statusMsg').innerHTML = "⚠️ Tatizo la muunganisho. Jaribu kuangalia tena.";
             }
-        }, (error) => {
-            console.error("Firestore listener error:", error);
-            // Optional: show user a message but keep polling? We'll just keep trying silently.
-        });
+        }
+
+        // Manual refresh function
+        window.checkStatusManually = function() {
+            document.getElementById('statusMsg').innerHTML = "Inaangalia tena...";
+            checkStatus();
+            setTimeout(() => {
+                document.getElementById('statusMsg').innerHTML = "Inasubiri uthibitisho kutoka kwa Admin...";
+            }, 2000);
+        };
+
+        // Ensure user is authenticated (anonymous) before listening
+        async function init() {
+            try {
+                // Sign in anonymously if not already
+                if (!auth.currentUser) {
+                    await auth.signInAnonymously();
+                    console.log("Anonymous auth successful");
+                }
+                
+                // Set up real-time listener
+                unsubscribe = db.collection('submissions').doc(requestId).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.status === 'approved') {
+                            if (unsubscribe) unsubscribe();
+                            if (checkInterval) clearInterval(checkInterval);
+                            window.location.href = `access_granted.html?type=app_id&amount=16000&requestId=${requestId}`;
+                        } else if (data.status === 'rejected') {
+                            if (unsubscribe) unsubscribe();
+                            if (checkInterval) clearInterval(checkInterval);
+                            alert("Malipo yako yamekataliwa. Tafadhali fanya malipo tena.");
+                            window.location.href = 'package1.html';
+                        }
+                    }
+                }, (err) => {
+                    console.error("Firestore listener error:", err);
+                    document.getElementById('statusMsg').innerHTML = "⚠️ Hitilafu ya muunganisho. Tunajaribu tena...";
+                    // Fallback: poll every 10 seconds if real-time fails
+                    if (!checkInterval) {
+                        checkInterval = setInterval(checkStatus, 10000);
+                    }
+                });
+                
+                // Also poll every 30 seconds as a backup
+                checkInterval = setInterval(checkStatus, 30000);
+                
+            } catch (authErr) {
+                console.error("Auth error:", authErr);
+                document.getElementById('statusMsg').innerHTML = "❌ Hitilafu ya usalama. Tafadhali onyesha upya ukurasa.";
+                // Still try polling without auth? Firestore will fail, but try anyway.
+                checkInterval = setInterval(checkStatus, 10000);
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
