@@ -1,198 +1,96 @@
+<!-- admin.html – full Firebase integration -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin • Aviator Payments • With History</title>
+    <title>Admin • Aviator Payments</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
-        .card { transition: all 0.2s; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .status-badge { display: inline-block; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; }
-        .status-pending { background: #fef3c7; color: #b45309; }
-        .status-approved { background: #d1fae5; color: #065f46; }
-        .status-rejected { background: #fee2e2; color: #991b1b; }
-    </style>
+    <style>body{font-family:'Inter',sans-serif;background:#f1f5f9;}</style>
 </head>
 <body class="p-5">
-    <div class="max-w-6xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-md p-6 mb-6 flex flex-wrap justify-between items-center gap-4">
-            <h1 class="text-2xl font-black text-red-700"><i class="fas fa-shield-alt mr-2"></i>Admin Panel • Aviator Payments</h1>
-            <div class="flex gap-3">
-                <button onclick="refreshAll()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
-                <button onclick="clearAllHistory()" class="bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-bold"><i class="fas fa-trash-alt mr-1"></i> Clear History</button>
-            </div>
-        </div>
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-md p-6 mb-6 flex justify-between items-center"><h1 class="text-2xl font-black text-red-700"><i class="fas fa-shield-alt mr-2"></i>Admin Panel</h1><button onclick="location.reload()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm"><i class="fas fa-sync-alt mr-1"></i> Refresh</button></div>
+    <div id="pendingList"></div>
+    <div id="historyList" class="mt-8"></div>
+</div>
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns", authDomain: "aviator-predictor-49e48.firebaseapp.com", projectId: "aviator-predictor-49e48", storageBucket: "aviator-predictor-49e48.firebasestorage.app", messagingSenderId: "369153377284", appId: "1:369153377284:web:87e48bbff408118a1ae151" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        <!-- Pending Requests Section -->
-        <div class="mb-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fas fa-hourglass-half text-yellow-600"></i> Pending Submissions</h2>
-            <div id="pendingList" class="grid gap-6">
-                <div class="text-center text-gray-500 py-10">Loading...</div>
-            </div>
-        </div>
+    function generateAppId() { return 'AVIATOR-' + Math.random().toString(36).substr(2, 8).toUpperCase(); }
 
-        <!-- History Section (Approved & Rejected) -->
-        <div>
-            <h2 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fas fa-history text-blue-600"></i> Transaction History</h2>
-            <div id="historyList" class="space-y-3">
-                <div class="text-center text-gray-500 py-10">No history yet.</div>
-            </div>
-        </div>
-    </div>
+    async function approveRequest(id, userId, fullName) {
+        const appIdCode = generateAppId();
+        // Create app_id document
+        await db.collection('app_ids').doc(appIdCode).set({
+            code: appIdCode,
+            userId: userId,
+            status: 'active',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // Update user's document
+        await db.collection('users').doc(userId).update({
+            hasAppId: true,
+            appIdCode: appIdCode,
+            appIdPurchasedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // Update submission status
+        await db.collection('submissions').doc(id).update({
+            status: 'approved',
+            decision_date: firebase.firestore.FieldValue.serverTimestamp(),
+            appIdGenerated: appIdCode
+        });
+        alert(`Approved! App ID: ${appIdCode} assigned to ${fullName}`);
+        location.reload();
+    }
 
-    <script>
-        // Helper: load all submissions from localStorage
-        function getSubmissions() {
-            return JSON.parse(localStorage.getItem('aviator_submissions') || '{}');
-        }
+    async function rejectRequest(id) {
+        await db.collection('submissions').doc(id).update({
+            status: 'rejected',
+            decision_date: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('Rejected');
+        location.reload();
+    }
 
-        function saveSubmissions(data) {
-            localStorage.setItem('aviator_submissions', JSON.stringify(data));
-        }
-
-        // Approve a request
-        function approveRequest(id) {
-            let submissions = getSubmissions();
-            if (submissions[id] && submissions[id].status === 'pending') {
-                submissions[id].status = 'approved';
-                submissions[id].decision_date = new Date().toISOString();
-                submissions[id].decision_note = 'Approved by Admin';
-                saveSubmissions(submissions);
-                refreshAll();
-                alert(`✅ Payment for ${submissions[id].fullName} has been APPROVED. User will be redirected to success page.`);
-            } else {
-                alert("This request is no longer pending.");
-            }
-        }
-
-        // Reject a request
-        function rejectRequest(id) {
-            let submissions = getSubmissions();
-            if (submissions[id] && submissions[id].status === 'pending') {
-                submissions[id].status = 'rejected';
-                submissions[id].decision_date = new Date().toISOString();
-                submissions[id].decision_note = 'Rejected by Admin';
-                saveSubmissions(submissions);
-                refreshAll();
-                alert(`❌ Payment for ${submissions[id].fullName} has been REJECTED. User will be notified.`);
-            } else {
-                alert("This request is no longer pending.");
-            }
-        }
-
-        // Clear all history (remove all non-pending submissions)
-        function clearAllHistory() {
-            if (confirm("WARNING: This will delete ALL approved and rejected transactions from history. Pending requests will remain. Are you sure?")) {
-                let submissions = getSubmissions();
-                let newSubmissions = {};
-                // Keep only pending ones
-                for (let id in submissions) {
-                    if (submissions[id].status === 'pending') {
-                        newSubmissions[id] = submissions[id];
-                    }
-                }
-                saveSubmissions(newSubmissions);
-                refreshAll();
-                alert("History cleared. Only pending requests remain.");
-            }
-        }
-
-        // Render both sections
-        function refreshAll() {
-            const submissions = getSubmissions();
-            const pending = [];
-            const history = [];
-
-            for (let id in submissions) {
-                const item = submissions[id];
-                if (item.status === 'pending') {
-                    pending.push(item);
-                } else {
-                    history.push(item);
-                }
-            }
-
-            // Sort pending by timestamp (newest first)
-            pending.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            // Sort history by decision_date (newest first)
-            history.sort((a,b) => new Date(b.decision_date || b.timestamp) - new Date(a.decision_date || a.timestamp));
-
-            // Render Pending
-            const pendingContainer = document.getElementById('pendingList');
-            if (pending.length === 0) {
-                pendingContainer.innerHTML = `<div class="bg-white rounded-xl p-8 text-center text-gray-500">✅ No pending submissions. Everything is approved or rejected.</div>`;
-            } else {
-                pendingContainer.innerHTML = pending.map(sub => `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden card" id="card-${sub.id}">
-                        <div class="p-5 border-b border-gray-100 flex flex-wrap justify-between items-start gap-3">
-                            <div>
-                                <h3 class="font-bold text-lg">${escapeHtml(sub.fullName)}</h3>
-                                <p class="text-xs text-gray-500">ID: ${sub.id}</p>
-                                <p class="text-sm mt-1"><span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">${sub.package}</span> • TSh ${sub.amount.toLocaleString()}</p>
-                                <p class="text-xs text-gray-400">Submitted: ${new Date(sub.timestamp).toLocaleString()}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="approveRequest('${sub.id}')" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-bold"><i class="fas fa-check mr-1"></i> Approve</button>
-                                <button onclick="rejectRequest('${sub.id}')" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full text-sm font-bold"><i class="fas fa-times mr-1"></i> Reject</button>
-                            </div>
-                        </div>
-                        <div class="p-5 bg-gray-50">
-                            <p class="text-xs font-bold uppercase text-gray-500 mb-1">Screenshot</p>
-                            <img src="${sub.screenshot}" class="max-w-full max-h-64 rounded-lg border shadow-sm" alt="screenshot">
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Render History
-            const historyContainer = document.getElementById('historyList');
-            if (history.length === 0) {
-                historyContainer.innerHTML = `<div class="bg-white rounded-xl p-8 text-center text-gray-500">📜 No transaction history yet.</div>`;
-            } else {
-                historyContainer.innerHTML = history.map(sub => `
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-wrap justify-between items-start gap-3">
-                        <div class="flex-1">
-                            <div class="flex flex-wrap items-center gap-2 mb-1">
-                                <span class="status-badge ${sub.status === 'approved' ? 'status-approved' : 'status-rejected'}">
-                                    ${sub.status === 'approved' ? '✓ APPROVED' : '✗ REJECTED'}
-                                </span>
-                                <span class="text-xs text-gray-500">${new Date(sub.decision_date || sub.timestamp).toLocaleString()}</span>
-                            </div>
-                            <p class="font-semibold">${escapeHtml(sub.fullName)}</p>
-                            <p class="text-sm">${sub.package} • TSh ${sub.amount.toLocaleString()}</p>
-                            <p class="text-xs text-gray-500">Request ID: ${sub.id}</p>
-                            <p class="text-xs text-gray-400 mt-1">Submitted: ${new Date(sub.timestamp).toLocaleString()}</p>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <button onclick="viewScreenshot('${sub.screenshot}')" class="text-blue-600 text-sm underline">View Screenshot</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function viewScreenshot(imgSrc) {
-            const win = window.open();
-            win.document.write(`<img src="${imgSrc}" style="max-width:100%; margin:auto; display:block;">`);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
+    function renderSubmissions() {
+        db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            let pending = [], history = [];
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                data.id = doc.id;
+                if(data.status === 'pending') pending.push(data);
+                else history.push(data);
             });
-        }
+            const pendingDiv = document.getElementById('pendingList');
+            if(pending.length===0) pendingDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">✅ No pending submissions</div>';
+            else pendingDiv.innerHTML = pending.map(sub => `
+                <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
+                    <div><strong>${sub.fullName}</strong> | ${sub.package} | TSh ${sub.amount}</div>
+                    <div class="text-xs text-gray-500">User ID: ${sub.userId}</div>
+                    <img src="${sub.screenshot}" class="max-h-48 my-2 rounded border">
+                    <div class="mt-2"><button onclick="approveRequest('${sub.id}','${sub.userId}','${sub.fullName}')" class="bg-green-600 text-white px-4 py-1 rounded-full mr-2">Approve</button><button onclick="rejectRequest('${sub.id}')" class="bg-red-600 text-white px-4 py-1 rounded-full">Reject</button></div>
+                </div>
+            `).join('');
 
-        // Initial load and auto-refresh every 5 seconds
-        refreshAll();
-        setInterval(refreshAll, 5000);
-    </script>
+            const historyDiv = document.getElementById('historyList');
+            if(history.length===0) historyDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">📜 No history</div>';
+            else historyDiv.innerHTML = '<h2 class="text-xl font-bold mb-3">Transaction History</h2>' + history.map(sub => `
+                <div class="bg-white rounded-xl p-4 mb-2 border">
+                    <div><span class="font-bold">${sub.fullName}</span> - ${sub.package} - TSh ${sub.amount}</div>
+                    <div>Status: ${sub.status.toUpperCase()} | ${sub.decision_date ? new Date(sub.decision_date.toDate()).toLocaleString() : ''}</div>
+                    ${sub.appIdGenerated ? `<div>App ID: ${sub.appIdGenerated}</div>` : ''}
+                </div>
+            `).join('');
+        });
+    }
+    renderSubmissions();
+</script>
 </body>
 </html>

