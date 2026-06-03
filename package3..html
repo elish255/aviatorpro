@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>CONNECT APP PAYMENT • Aviator Pro • TSh 50,000</title>
+    <title> CONNECT APP PAYMENT• Aviator Pro • TSh 50,000</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -26,10 +25,6 @@
         .copy-btn { background: #eef2f8; padding: 0.25rem 0.8rem; border-radius: 2rem; font-size: 0.7rem; cursor: pointer; }
         .toast-msg { position: fixed; bottom: 28px; left: 50%; background: #1e2f3a; color: white; padding: 0.7rem 1.5rem; border-radius: 60px; z-index: 1100; opacity: 0; transition: 0.2s; pointer-events: none; }
         .step-value-highlight { background: #fff1db; padding: 0.2rem 0.6rem; border-radius: 1rem; font-family: monospace; }
-        .btn-loading { opacity: 0.7; cursor: wait; }
-        .btn-loading i, .btn-loading span { display: none; }
-        .btn-loading::after { content: ''; width: 20px; height: 20px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.6s linear infinite; display: inline-block; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="pb-24">
@@ -37,11 +32,11 @@
     <div class="max-w-md mx-auto space-y-5">
         <!-- Header -->
         <div class="glass-header sticky top-0 z-50 text-white px-5 py-4 flex items-center justify-between shadow-xl rounded-2xl">
-            <div class="flex items-center gap-3"><button onclick="window.location.href='dashboard.html'" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-white"></i></button><h1 class="font-extrabold text-lg uppercase">APP ID PAYMENT</h1></div>
+            <div class="flex items-center gap-3"><button onclick="window.location.href='dashboard.html'" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"><i data-lucide="arrow-left" class="w-5 h-5 text-white"></i></button><h1 class="font-extrabold text-lg uppercase">ACCOUNT CONNECT PAYMENT</h1></div>
             <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-red-500 flex items-center justify-center"><i data-lucide="smartphone" class="w-4 h-4 text-white"></i></div>
         </div>
 
-      <!-- Package Card -->
+        <!-- Package Card -->
         <div class="package-card bg-white rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all">
             <div class="relative">
                 <div class="absolute top-0 right-0 w-28 h-28 bg-red-100/30 rounded-bl-[80px] pointer-events-none"></div>
@@ -62,7 +57,23 @@
                 </div>
             </div>
         </div>
+
         <!-- Payment Info Banner -->
+        <div class="bg-white rounded-2xl shadow-xl border border-white/30 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-red-50 rounded-bl-[100px] pointer-events-none opacity-50"></div>
+            <div class="p-5 flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 relative z-10"><i data-lucide="book-open" class="w-6 h-6 text-blue-700"></i></div>
+                <div><h3 class="text-red-800 font-bold text-sm tracking-wide mb-1 uppercase">CONNECTING ACCOUNT SERVICE
+</h3><p class="text-gray-600 text-xs">Malipo ya TSh 50,000 ($28 USD) kwa Connecting Account Service. Fuata maelekezo ya mtandao wako.</p></div>
+            </div>
+            <div class="blue-gradient px-5 py-4 flex items-center justify-between">
+                <div><p class="text-red-100 text-[10px] font-bold uppercase tracking-wider mb-1">Kiasi Kinachohitajika</p><p class="text-white font-black text-2xl">TSh 50,000</p></div>
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"><i data-lucide="wallet" class="w-5 h-5 text-white"></i></div>
+            </div>
+        </div>
+
+        <!-- Payment Methods Accordions (same as your original – truncated for brevity but you should keep full version) -->
+      <!-- Payment Info Banner -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-5">
             <h4 class="font-extrabold text-slate-800 text-sm mb-4 uppercase tracking-wide flex items-center gap-2">
                 <i data-lucide="smartphone" class="w-4 h-4 text-red-500"></i>
@@ -175,7 +186,7 @@
                     </button>
                     <div id="usdt" class="accordion-content bg-white p-5 border-t border-slate-100">
                         <ul class="space-y-3 text-xs text-slate-700">
-                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Tuma <strong>$28 USD</strong> (USDT) kwa address ifuatayo:</li>
+                            <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">1</span> Tuma <strong>$9 USD</strong> (USDT) kwa address ifuatayo:</li>
                             <li class="flex items-start gap-2 flex-wrap"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">2</span> <span class="font-mono bg-gray-100 p-1 rounded text-xs break-all">TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj</span> <button class="copy-btn" onclick="copyToClipboard('TQLvBhvpcxQYqGU51nsZ7wXmPZi97gmpYj')">Copy</button></li>
                             <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">3</span> Network: TRC20 au BEP20 (safely send)</li>
                             <li class="flex items-start gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold">4</span> Baada ya malipo tuma TxID kupitia WhatsApp</li>
@@ -198,7 +209,7 @@
     </div>
     <div id="processingOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center"><div class="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4"></div><p class="text-white font-bold uppercase">Tunatuma...</p></div>
 
-    <script>
+     <script>
         // Firebase config (same as login)
         const firebaseConfig = {
             apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
@@ -306,7 +317,7 @@
                     userId: userId,
                     fullName: fullName,
                     amount: 50000,
-                    package: "CONNECT APP",
+                    package: "CONNECT ACCESS",
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     screenshot: currentImageData,
                     status: "pending"
