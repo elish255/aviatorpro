@@ -19,78 +19,43 @@
     <div id="historyList" class="mt-8"></div>
 </div>
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns", authDomain: "aviator-predictor-49e48.firebaseapp.com", projectId: "aviator-predictor-49e48", storageBucket: "aviator-predictor-49e48.firebasestorage.app", messagingSenderId: "369153377284", appId: "1:369153377284:web:87e48bbff408118a1ae151" };
+    const firebaseConfig = { /* same config */ };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function generateAppId() { return 'AVIATOR-' + Math.random().toString(36).substr(2, 8).toUpperCase(); }
-
-    async function approveRequest(id, userId, fullName) {
-        const appIdCode = generateAppId();
-        // Create app_id document
-        await db.collection('app_ids').doc(appIdCode).set({
-            code: appIdCode,
-            userId: userId,
-            status: 'active',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    async function loadSubmissions() {
+        const snapshot = await db.collection('submissions').get();
+        const pendingDiv = document.getElementById('pendingList');
+        if (snapshot.empty) {
+            pendingDiv.innerHTML = '<div class="bg-white p-8 text-center">No submissions found. Check Firestore.</div>';
+            return;
+        }
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            html += `<div class="bg-white p-4 mb-2 rounded shadow">
+                        <strong>${data.fullName}</strong> - ${data.package} - TSh ${data.amount}<br>
+                        Status: ${data.status}<br>
+                        <button onclick="approve('${doc.id}')">Approve</button>
+                        <button onclick="reject('${doc.id}')">Reject</button>
+                        <img src="${data.screenshot}" style="max-height:100px">
+                    </div>`;
         });
-        // Update user's document
-        await db.collection('users').doc(userId).update({
-            hasAppId: true,
-            appIdCode: appIdCode,
-            appIdPurchasedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        // Update submission status
-        await db.collection('submissions').doc(id).update({
-            status: 'approved',
-            decision_date: firebase.firestore.FieldValue.serverTimestamp(),
-            appIdGenerated: appIdCode
-        });
-        alert(`Approved! App ID: ${appIdCode} assigned to ${fullName}`);
-        location.reload();
+        pendingDiv.innerHTML = html;
     }
 
-    async function rejectRequest(id) {
-        await db.collection('submissions').doc(id).update({
-            status: 'rejected',
-            decision_date: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    window.approve = async (id) => {
+        await db.collection('submissions').doc(id).update({ status: 'approved', decision_date: new Date().toISOString() });
+        alert('Approved');
+        loadSubmissions();
+    };
+    window.reject = async (id) => {
+        await db.collection('submissions').doc(id).update({ status: 'rejected', decision_date: new Date().toISOString() });
         alert('Rejected');
-        location.reload();
-    }
+        loadSubmissions();
+    };
 
-    function renderSubmissions() {
-        db.collection('submissions').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-            let pending = [], history = [];
-            snapshot.forEach(doc => {
-                let data = doc.data();
-                data.id = doc.id;
-                if(data.status === 'pending') pending.push(data);
-                else history.push(data);
-            });
-            const pendingDiv = document.getElementById('pendingList');
-            if(pending.length===0) pendingDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">✅ No pending submissions</div>';
-            else pendingDiv.innerHTML = pending.map(sub => `
-                <div class="bg-white rounded-2xl shadow-md p-5 mb-4">
-                    <div><strong>${sub.fullName}</strong> | ${sub.package} | TSh ${sub.amount}</div>
-                    <div class="text-xs text-gray-500">User ID: ${sub.userId}</div>
-                    <img src="${sub.screenshot}" class="max-h-48 my-2 rounded border">
-                    <div class="mt-2"><button onclick="approveRequest('${sub.id}','${sub.userId}','${sub.fullName}')" class="bg-green-600 text-white px-4 py-1 rounded-full mr-2">Approve</button><button onclick="rejectRequest('${sub.id}')" class="bg-red-600 text-white px-4 py-1 rounded-full">Reject</button></div>
-                </div>
-            `).join('');
-
-            const historyDiv = document.getElementById('historyList');
-            if(history.length===0) historyDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">📜 No history</div>';
-            else historyDiv.innerHTML = '<h2 class="text-xl font-bold mb-3">Transaction History</h2>' + history.map(sub => `
-                <div class="bg-white rounded-xl p-4 mb-2 border">
-                    <div><span class="font-bold">${sub.fullName}</span> - ${sub.package} - TSh ${sub.amount}</div>
-                    <div>Status: ${sub.status.toUpperCase()} | ${sub.decision_date ? new Date(sub.decision_date.toDate()).toLocaleString() : ''}</div>
-                    ${sub.appIdGenerated ? `<div>App ID: ${sub.appIdGenerated}</div>` : ''}
-                </div>
-            `).join('');
-        });
-    }
-    renderSubmissions();
+    loadSubmissions();
 </script>
 </body>
 </html>
