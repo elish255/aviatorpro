@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#ff1f2d,#ff3131);}</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-5">
@@ -17,30 +21,94 @@
         <h2 class="text-2xl font-black text-green-700">Malipo Yamekubaliwa!</h2>
         <p class="text-gray-600 mt-2">Hongera! Malipo yako yamethibitishwa.</p>
         <div id="dynamicMessage" class="mt-4 p-3 bg-blue-50 rounded-xl text-sm">
-            <!-- dynamic content based on package type -->
+            Inapakua taarifa...
         </div>
         <div class="mt-6 flex gap-3 justify-center">
-            <button onclick="window.location.href='dashboard.html'" class="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold">← Dashboard</button>
+            <button id="dashboardBtn" class="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold">← Dashboard</button>
             <button onclick="window.open('https://wa.me/255652048044','_blank')" class="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold"><i class="fab fa-whatsapp mr-1"></i> Help</button>
         </div>
     </div>
+
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
+            authDomain: "aviator-predictor-49e48.firebaseapp.com",
+            projectId: "aviator-predictor-49e48",
+            storageBucket: "aviator-predictor-49e48.firebasestorage.app",
+            messagingSenderId: "369153377284",
+            appId: "1:369153377284:web:87e48bbff408118a1ae151"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
         const urlParams = new URLSearchParams(window.location.search);
         const type = urlParams.get('type');
-        const amount = urlParams.get('amount');
+        const requestId = urlParams.get('requestId');
         const msgDiv = document.getElementById('dynamicMessage');
-        if(type === 'app_id') {
-            msgDiv.innerHTML = `<strong>Msimbo wako wa App ID:</strong> <span class="font-mono bg-white px-2 py-1 rounded border">AVIATOR-APP-${Math.floor(Math.random()*10000)}</span><br>Unaweza kuingia app na kutumia huduma kwa siku 7.`;
-        } else if(type === 'vpn') {
-            msgDiv.innerHTML = `<strong>Config ya VPN imetumwa kwa WhatsApp yako.</strong><br>Tafadhali angalia ujumbe kutoka kwa Admin. Endelea kufurahia browsing salama.`;
-        } else if(type === 'connect') {
-            msgDiv.innerHTML = `<strong>Akaunti yako imeunganishwa kikamilifu!</strong><br>Sasa una access ya VIP na msaada wa kipaumbele.`;
+
+        let redirectUrl = 'dashboard.html'; // default
+        let successText = '';
+
+        // Determine redirect based on type
+        if (type === 'app_id') {
+            redirectUrl = 'package2.html';
+            successText = 'Msimbo wako wa App ID utaonekana hapa chini. Unaelekezwa kwenye ukurasa wa VPN...';
+        } else if (type === 'vpn') {
+            redirectUrl = 'package3.html';
+            successText = 'VPN yako imeamilishwa. Unaelekezwa kwenye kuunganisha akaunti...';
+        } else if (type === 'connect') {
+            redirectUrl = 'dashboard.html';
+            successText = 'Akaunti yako imeunganishwa kikamilifu! Unaelekezwa kwenye dashibodi...';
         } else {
-            msgDiv.innerHTML = `Malipo yako yamethibitishwa. Utapokea maelekezo zaidi kwa WhatsApp.`;
+            redirectUrl = 'dashboard.html';
+            successText = 'Malipo yamethibitishwa. Unaelekezwa kwenye dashibodi...';
         }
-        <!-- access_granted.html – add redirect to dashboard after 20: seconds -->
-    // existing success message
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 20000);
+
+        // Fetch the actual App ID from Firestore if needed
+        async function fetchAppId() {
+            if (type === 'app_id' && requestId) {
+                try {
+                    const doc = await db.collection('submissions').doc(requestId).get();
+                    if (doc.exists && doc.data().appIdGenerated) {
+                        return doc.data().appIdGenerated;
+                    }
+                } catch (err) {
+                    console.error("Error fetching App ID:", err);
+                }
+            }
+            return null;
+        }
+
+        // Display message and redirect after 5 seconds
+        async function init() {
+            let displayMsg = successText;
+            if (type === 'app_id') {
+                const appId = await fetchAppId();
+                if (appId) {
+                    displayMsg = `<strong>Msimbo wako wa App ID:</strong> <span class="font-mono bg-white px-2 py-1 rounded border">${appId}</span><br>Unaweza kuingia app na kutumia huduma. Unaelekezwa kwenye ukurasa wa VPN...`;
+                } else {
+                    displayMsg = `<strong>Msimbo wako wa App ID umetumwa kwa WhatsApp yako.</strong><br>Unaelekezwa kwenye ukurasa wa VPN...`;
+                }
+            } else if (type === 'vpn') {
+                displayMsg = `<strong>Config ya VPN imetumwa kwa WhatsApp yako.</strong><br>Tafadhali angalia ujumbe. Unaelekezwa kwenye kuunganisha akaunti...`;
+            } else if (type === 'connect') {
+                displayMsg = `<strong>Akaunti yako imeunganishwa kikamilifu!</strong><br>Sasa una access ya VIP. Unaelekezwa kwenye dashibodi...`;
+            }
+            msgDiv.innerHTML = displayMsg;
+
+            // Redirect after 5 seconds
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 5000);
+        }
+
+        // Manual dashboard button override
+        document.getElementById('dashboardBtn').onclick = () => {
+            window.location.href = 'dashboard.html';
+        };
+
+        init();
     </script>
 </body>
 </html>
