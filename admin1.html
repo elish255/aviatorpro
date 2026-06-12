@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin • Aviator Payments • With History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .card { transition: all 0.2s; }
+        .status-badge { display: inline-block; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="p-5">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-6 flex flex-wrap justify-between items-center gap-4">
+            <h1 class="text-2xl font-black text-red-700"><i class="fas fa-shield-alt mr-2"></i>Admin Panel • Aviator Payments</h1>
+            <div class="flex gap-3">
+                <button onclick="location.reload()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
+                <button onclick="clearAllHistory()" class="bg-gray-600 text-white px-4 py-2 rounded-full text-sm font-bold"><i class="fas fa-trash-alt mr-1"></i> Clear History</button>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-3"><i class="fas fa-hourglass-half text-yellow-600"></i> Pending Submissions</h2>
+            <div id="pendingList" class="grid gap-6">Loading...</div>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 mb-3"><i class="fas fa-history text-blue-600"></i> Transaction History</h2>
+            <div id="historyList" class="space-y-3">No history yet.</div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP0PrZlJ2fd6Nbtct8KJPnS3-DFZ6CMns",
+            authDomain: "aviator-predictor-49e48.firebaseapp.com",
+            projectId: "aviator-predictor-49e48",
+            storageBucket: "aviator-predictor-49e48.firebasestorage.app",
+            messagingSenderId: "369153377284",
+            appId: "1:369153377284:web:87e48bbff408118a1ae151"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        function generateAppId() { return 'AVIATOR-' + Math.random().toString(36).substr(2, 8).toUpperCase(); }
+
+        // APPROVE with automatic user document creation if missing
+        async function approveRequest(id, userId, fullName, phoneNumber = null) {
+            if (!confirm(`Approve payment for ${fullName}?`)) return;
+            const appIdCode = generateAppId();
+            try {
+                // 1. Ensure user document exists (create if missing)
+                const userRef = db.collection('users').doc(userId);
+                const userDoc = await userRef.get();
+                if (!userDoc.exists) {
+                    // Create user document with phone number from submission or placeholder
+                    const userData = {
+                        phoneNumber: phoneNumber || 'Unknown',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        hasAppId: false,
+                        hasVpn: false,
+                        hasAccountConnected: false
+                    };
+                    await userRef.set(userData);
+                    console.log(`Created missing user document for ${userId}`);
+                }
+
+                // 2. Create app_id document
+                await db.collection('app_ids').doc(appIdCode).set({
+                    code: appIdCode,
+                    userId: userId,
+                    status: 'active',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 3. Update user's hasAppId flag
+                await userRef.update({
+                    hasAppId: true,
+                    appIdCode: appIdCode,
+                    appIdPurchasedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 4. Update submission status
+                await db.collection('submissions').doc(id).update({
+                    status: 'approved',
+                    decision_date: firebase.firestore.FieldValue.serverTimestamp(),
+                    appIdGenerated: appIdCode
+                });
+
+                alert(`✅ Approved! App ID: ${appIdCode}\nUser document ${userDoc.exists ? 'updated' : 'created'}.`);
+                loadData();
+            } catch (err) {
+                console.error("Approval error:", err);
+                alert("Error approving: " + err.message);
+            }
+        }
+
+        async function rejectRequest(id) {
+            if (!confirm("Reject this payment?")) return;
+            try {
+                await db.collection('submissions').doc(id).update({
+                    status: 'rejected',
+                    decision_date: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("❌ Payment rejected.");
+                loadData();
+            } catch (err) {
+                alert("Error rejecting: " + err.message);
+            }
+        }
+
+        async function loadData() {
+            await auth.signInAnonymously();
+            const snapshot = await db.collection('submissions').get();
+            const pending = [], history = [];
+            snapshot.forEach(doc => {
+                const data = doc.data(); data.id = doc.id;
+                if (data.status === 'pending') pending.push(data);
+                else history.push(data);
+            });
+            pending.sort((a,b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+            history.sort((a,b) => (b.decision_date?.toMillis() || 0) - (a.decision_date?.toMillis() || 0));
+
+            const pendingDiv = document.getElementById('pendingList');
+            if (pending.length === 0) pendingDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">✅ No pending submissions.</div>';
+            else {
+                pendingDiv.innerHTML = pending.map(sub => `
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                        <div class="p-5 border-b flex flex-wrap justify-between">
+                            <div><h3 class="font-bold text-lg">${escapeHtml(sub.fullName)}</h3><p class="text-xs text-gray-500">ID: ${sub.id}</p><p class="text-sm mt-1">${sub.package} • TSh ${sub.amount}</p><p class="text-xs text-gray-400">Submitted: ${sub.timestamp?.toDate().toLocaleString() || 'Just now'}</p></div>
+                            <div><button onclick="approveRequest('${sub.id}', '${sub.userId}', '${escapeHtml(sub.fullName)}', '${sub.phoneNumber || ''}')" class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-bold mr-2">Approve</button><button onclick="rejectRequest('${sub.id}')" class="bg-red-600 text-white px-5 py-2 rounded-full text-sm font-bold">Reject</button></div>
+                        </div>
+                        <div class="p-5 bg-gray-50"><p class="text-xs font-bold uppercase">Screenshot</p><img src="${sub.screenshot}" class="max-h-64 rounded border"></div>
+                    </div>
+                `).join('');
+            }
+
+            const historyDiv = document.getElementById('historyList');
+            if (history.length === 0) historyDiv.innerHTML = '<div class="bg-white rounded-xl p-8 text-center">📜 No history yet.</div>';
+            else {
+                historyDiv.innerHTML = '<h2 class="text-xl font-bold mb-3">Transaction History</h2>' + history.map(sub => `
+                    <div class="bg-white rounded-xl p-4 border">
+                        <div><span class="status-badge ${sub.status === 'approved' ? 'status-approved' : 'status-rejected'}">${sub.status.toUpperCase()}</span> <span class="text-xs text-gray-500">${sub.decision_date?.toDate().toLocaleString() || ''}</span></div>
+                        <p class="font-semibold">${escapeHtml(sub.fullName)}</p>
+                        <p>${sub.package} • TSh ${sub.amount}</p>
+                        ${sub.appIdGenerated ? `<p class="text-xs text-green-600">App ID: ${sub.appIdGenerated}</p>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        async function clearAllHistory() { if (confirm("Delete all approved/rejected submissions?")) { const snapshot = await db.collection('submissions').get(); for (const doc of snapshot.docs) if (doc.data().status !== 'pending') await doc.ref.delete(); alert("History cleared."); loadData(); } }
+
+        window.approveRequest = approveRequest;
+        window.rejectRequest = rejectRequest;
+        window.clearAllHistory = clearAllHistory;
+        loadData();
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
